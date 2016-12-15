@@ -3,9 +3,33 @@
 <h1>Steps</h1>
 
 <ul>
+  <li><a href="#step0">Step 0: Install node and Redis </a></li>
   <li><a href="#step1">Step 1: Setup and Dependecies </a></li>
-  <li><a href="#step2">Step 2: Create Tables Using Migration</a></li>
+  <li><a href="#step2">Step 2: Prepare the Database</a></li>
+  <li><a href="#step3">Step 3: Create Model</a></li>
+  <li><a href="#step4">Step 4: Create Controller</a></li>
+  <li><a href="#step5">Step 5: Set up route</a></li>
+  <li><a href="#step6">Step 6: Create View</a></li>
+  <li><a href="#step7">Step 7: Create Server File</a></li>
+  <li><a href="#step8">Step 8: Test and Run</a></li>
 </ul>
+
+
+<a name="step0"></a>
+<h1>Step 0: Install node and Redis</h1>
+
+To make possible the communication from the two different backend servers, Laravel 5 and NodeJS we will use Redis.
+Redis is a key value storage with a publish/subscriber feature.
+Basically every message published on a specific queue will be intercepted from every subscriber, in this case the subscriber will be the NodeJS server.
+
+<b>Make sure you have node installed</b>: <a href"https://nodejs.org/en/">Node</a>
+
+<b>Mac</b>
+If you have brew you can install redis easily by running this command
+brew install redis
+
+Then, to start the server
+redis-server
 
 
 <a name="step1"></a>
@@ -274,7 +298,7 @@ Route::group(['middleware' => ['auth']], function() {
 ```
 
 <a name="step7"></a>
-<h1>Step 7: Create View</h1>
+<h1>Step 7: Create Server File</h1>
 
 In the project root folder create a new file <b>server.js</b> file
 
