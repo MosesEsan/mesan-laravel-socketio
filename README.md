@@ -3,7 +3,7 @@
 <h1>Steps</h1>
 
 <ul>
-  <li><a href="#step0">Step 0: Install node and Redis </a></li>
+  <li><a href="#step0">Step 0: Install Node and Redis </a></li>
   <li><a href="#step1">Step 1: Setup and Dependecies </a></li>
   <li><a href="#step2">Step 2: Prepare the Database</a></li>
   <li><a href="#step3">Step 3: Create Model</a></li>
@@ -16,21 +16,26 @@
 
 
 <a name="step0"></a>
-<h1>Step 0: Install node and Redis</h1>
+<h1>Step 0: Install Node and Redis</h1>
 
 To make possible the communication from the two different backend servers, Laravel 5 and NodeJS we will use Redis.
 Redis is a key value storage with a publish/subscriber feature.
 Basically every message published on a specific queue will be intercepted from every subscriber, in this case the subscriber will be the NodeJS server.
 
-<b>Make sure you have node installed</b>: <a href"https://nodejs.org/en/">Node</a>
+<b>Make sure you have node installed</b>: <a href="https://nodejs.org/en/">Node</a>
 
 <b>Mac</b>
 If you have brew you can install redis easily by running this command
+Run
+```bash
 brew install redis
+```
 
 Then, to start the server
+Run
+```bash
 redis-server
-
+```
 
 <a name="step1"></a>
 <h1>Step 1: Setup and Dependencies</h1>
