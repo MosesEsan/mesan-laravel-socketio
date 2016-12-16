@@ -90,6 +90,7 @@ DB_PORT=3306
 DB_DATABASE=[db_name]
 DB_USERNAME=[db_user]
 DB_PASSWORD=[db_pwd]
+```
 
 
 If you install a fresh laravel project then you have already users table migration.
@@ -183,44 +184,50 @@ php artisan make:controller SocketController
 ```php
 <?php
 
-namespace App\Http\Controllers;
+	namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+	use Illuminate\Http\Request;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use LRedis, Auth;
+	use App\Http\Requests;
+	use App\Http\Controllers\Controller;
+	use LRedis, Auth;
 
-use App\Message;
+	use App\Message;
 
-class SocketController extends Controller
-{
-     //Write Message
-     public function writemessage()
-     {
-         return view('writemessage');
-     }
+	class SocketController extends Controller
+	{
+	    //Write Message
+	    public function writemessage()
+	    {
+	        $messages = Message::leftJoin('users', function($join) {
+	            $join->on('messages.user_id', '=', 'users.id');
+	        })->select(
+	            'users.first_name','users.last_name', 'messages.message')->orderBy('messages.created_at', 'asc')
+	            ->get();
 
-    //Send Message
-     public function sendMessage(Request $request)
-     {
-         $user = Auth::user();
+	        return view('writemessage', compact('messages'));
+	    }
 
-        $input = $request->all();
-         $redis = LRedis::connection();
+	    //Send Message
+	    public function sendMessage(Request $request)
+	    {
+	        $user = Auth::user();
 
-        if(!isset($input['message']) || trim($input['message']) === ''){
-         }else{
-             Message::create([
-                 'user_id' => $user->id,
-                 'message' => $input['message']
-             ]);
+	        $input = $request->all();
+	        $redis = LRedis::connection();
 
-            $data = ['message' => $input['message'], 'user' => $user->first_name];
-             $redis->publish('message', json_encode($data));
-         }
-     }
-}
+	        if(!isset($input['message']) || trim($input['message']) === ''){
+	        }else{
+	            Message::create([
+	                'user_id' => $user->id,
+	                'message' => $input['message']
+	            ]);
+
+	            $data = ['message' => $input['message'], 'user' => $user->first_name];
+	            $redis->publish('message', json_encode($data));
+	        }
+	    }
+	}
 ```
 
 <a name="step5"></a>
@@ -245,60 +252,67 @@ Route::group(['middleware' => ['auth']], function() {
 @extends('layouts.app')
 
 @section('content')
-     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-     <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-     <script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>
 
     <div class="container">
-         <div class="row">
-             <div class="col-lg-8 col-lg-offset-2" >
-                 <div class="panel panel-default">
-                     <div class="panel-heading">Messages Received</div>
-                     <div id="messages" style="height: 250px;     padding: 15px;"></div>
-                 </div>
-             </div>
-         </div>
-         <div class="row">
-             <div class="col-md-10 col-md-offset-1">
-                 <div class="panel panel-default">
-                     <div class="panel-heading">Send message</div>
-                     <form action="sendmessage" method="POST">
-                         {{ csrf_field() }}
-                         <input type="text" name="message" class="message" >
-                         <input type="submit" value="send" class="send">
-                     </form>
-                 </div>
-             </div>
-         </div>
-     </div>
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2" >
+                <div class="panel panel-default">
+                    <div class="panel-heading">Messages Received</div>
+                    <div id="messages" style="height: 250px;     padding: 15px;">
+
+                        @foreach ($messages as $key => $message)
+                            <p>{{$message->first_name}} : {{$message->message}}</p>
+                        @endforeach
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Send message</div>
+                    <form action="sendmessage" method="POST">
+                        {{ csrf_field() }}
+                        <input type="text" name="message" class="message" >
+                        <input type="submit" value="send" class="send">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-         var socket = io.connect('http://localhost:8890');
-         socket.on('message', function (data) {
-             data = JSON.parse(data);
-             $( "#messages" ).append( "<p>"+data.user+": "+data.message+"</p>" );
-         });
+        var socket = io.connect('http://localhost:8890');
+        socket.on('message', function (data) {
+            data = JSON.parse(data);
+            $( "#messages" ).append( "<p>"+data.user+" : "+data.message+"</p>" );
+        });
 
         $('input.send').click(function(e){
-             e.preventDefault();
-             search();
-         });
+            e.preventDefault();
+            search();
+        });
 
         function search() {
-             var message = $('input.message').val();
-             $.ajax({
-                 type: "POST",
-                 url: "sendmessage",
-                 data: { "_token": $('meta[name="csrf-token"]').attr('content'), "message": message},
-                 cache: false,
-                 success: function(results){
-                 }
-             });
-         }
+            var message = $('input.message').val();
+            $.ajax({
+                type: "POST",
+                url: "sendmessage",
+                data: { "_token": $('meta[name="csrf-token"]').attr('content'), "message": message},
+                cache: false,
+                success: function(results){
+                }
+            });
+        }
 
     </script>
 
 @endsection
+
 
 ```
 
