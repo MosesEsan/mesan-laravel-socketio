@@ -13,7 +13,7 @@
                     <div id="messages" style="height: 250px;     padding: 15px;">
 
                         @foreach ($messages as $key => $message)
-                            <p>{{$message->first_name}} : {{$message->message}}</p>
+                            <p>{{$message->name}} : {{$message->message}}</p>
                         @endforeach
 
                     </div>
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+            <div class="col-md-8 col-md-offset-2">
                 <div class="panel panel-default">
                     <div class="panel-heading">Send message</div>
                     <form action="sendmessage" method="POST">
