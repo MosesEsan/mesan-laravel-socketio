@@ -94,6 +94,7 @@ DB_PASSWORD=[db_pwd]
 
 
 If you install a fresh laravel project then you have already users table migration.
+
 You need to create the messages table.
 ```bash
 php artisan make:migration create_messages_table
@@ -144,7 +145,7 @@ php artisan migrate
 ```
 
 <a name="step3"></a>
-<h1>Step 3: Create Model</h1>
+<h1>Step 3: Create Model for Message</h1>
 
 Run
 ```bash
@@ -202,7 +203,7 @@ php artisan make:controller SocketController
 	        $messages = Message::leftJoin('users', function($join) {
 	            $join->on('messages.user_id', '=', 'users.id');
 	        })->select(
-	            'users.first_name','users.last_name', 'messages.message')->orderBy('messages.created_at', 'asc')
+	            'users.name', 'messages.message')->orderBy('messages.created_at', 'asc')
 	            ->get();
 
 	        return view('writemessage', compact('messages'));
@@ -223,7 +224,7 @@ php artisan make:controller SocketController
 	                'message' => $input['message']
 	            ]);
 
-	            $data = ['message' => $input['message'], 'user' => $user->first_name];
+	            $data = ['message' => $input['message'], 'user' => $user->name];
 	            $redis->publish('message', json_encode($data));
 	        }
 	    }

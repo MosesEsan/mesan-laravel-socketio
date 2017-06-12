@@ -39,7 +39,7 @@ class SocketController extends Controller
                 'message' => $input['message']
             ]);
 
-            $data = ['message' => $input['message'], 'user' => $user->first_name];
+            $data = ['message' => $input['message'], 'user' => $user->name];
             $redis->publish('message', json_encode($data));
         }
     }
